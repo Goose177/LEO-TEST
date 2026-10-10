@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>မြန်မာပြန်လည်သင်ကြားခြင်း - ပြိုင်ပွဲဝင်စာမေးပွဲ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for Screenshot functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Google Fonts Pyidaungsu / Myanmar -->
+    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pyidaungsu', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-slate-50 to-blue-100 min-p-4 min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- Header Section -->
+    <header class="w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-indigo-100 py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-lg md:text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">မြန်မာပြန်လည်သင်ကြားခြင်း စာမေးပွဲ</h1>
+                <p class="text-xs text-slate-500">BLACK LEO LLC Interactive Assessment Platform</p>
+            </div>
+            <div id="timer-box" class="hidden items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-sm font-semibold border border-indigo-200 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="timer">00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl w-full mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="w-full bg-white rounded-2xl shadow-xl border border-indigo-50 p-6 md:p-10 text-center fade-in">
+            <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-3xl font-bold">
+                📖
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">မြန်မာပြန်လည်သင်ကြားခြင်း (အောက်တိုဘာ)</h2>
+            <p class="text-slate-600 mb-6 text-sm md:text-base leading-relaxed max-w-lg mx-auto">
+                ဤစာမေးပွဲတွင် မှန်/မှား၊ ကွက်လပ်ဖြည့်၊ နှင့် အဖြေမှန်ရွေးချယ်ရန် မေးခွန်းများပါဝင်ပါသည်။ မေးခွန်းများကို ဗြောက်သောက် (Random) ဖြင့် စီစဉ်ပေးထားပါသည်။
+            </p>
+            <div class="bg-indigo-50/60 rounded-xl p-4 text-sm text-indigo-900 mb-8 border border-indigo-100 flex flex-col gap-2 max-w-md mx-auto">
+                <div class="flex justify-between"><span>စုစုပေါင်းမေးခွန်း:</span> <strong id="total-q-count">--</strong> ခု</div>
+                <div class="flex justify-between"><span>စည်းမျဉ်း:</span> <strong>မှန်/မှား အဖြေများပြင်ဆင်ပြီး (ပုဂံမြို့ဟောင်း - မှန်)</strong></div>
+            </div>
+            <button onclick="startQuiz()" class="w-full max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-indigo-200 transition-all transform active:scale-95 duration-200">
+                စတင်ဖြေဆိုမည်
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="w-full bg-white rounded-2xl shadow-xl border border-indigo-50 p-6 md:p-10 hidden fade-in">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-500 mb-2">
+                    <span id="question-progress-label">မေးခွန်း ၁ / ၁၀</span>
+                    <span id="question-type-badge" class="bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full text-[11px]">အမျိုးအစား</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-indigo-600 h-full transition-all duration-300 rounded-full" style="width: 10%;"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-8">
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed mb-6">
+                    <!-- Question Title -->
+                </h3>
+
+                <!-- Options Container -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <!-- Fill-in-the-blank Input -->
+                <div id="fib-container" class="hidden">
+                    <input type="text" id="fib-input" placeholder="သင်၏အဖြေကို ဤနေရာတွင် ရိုက်ထည့်ပါ..." class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 shadow-inner">
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                    နောက်သို့
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl shadow-md transition-all">
+                    ရှေ့သို့
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="w-full bg-white rounded-2xl shadow-xl border border-indigo-50 p-6 md:p-10 hidden fade-in text-center">
+            <div id="capture-area" class="bg-white p-4 rounded-xl">
+                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner text-3xl font-bold">
+                    🏆
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">စာမေးပွဲပြီးဆုံးပါပြီ!</h2>
+                <p class="text-slate-500 text-sm mb-6">သင်၏ စုစုပေါင်းရမှတ်ရလဒ်</p>
+
+                <!-- Score Card -->
+                <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100 mb-6 max-w-sm mx-auto shadow-sm">
+                    <div class="text-4xl md:text-5xl font-black text-indigo-600 mb-2"><span id="score-val">0</span>/<span id="total-val">0</span></div>
+                    <p id="score-percentage" class="text-sm font-semibold text-slate-600 mb-3">ရာခိုင်နှုန်း: 0%</p>
+                    <div id="performance-msg" class="text-xs px-3 py-1.5 rounded-full inline-block font-medium bg-emerald-100 text-emerald-800">အရမ်းကောင်းပါတယ်</div>
+                </div>
+
+                <!-- Watermark for Screenshot -->
+                <div class="text-[11px] text-slate-400 mt-4 border-t border-slate-100 pt-3">
+                    <p>BLACK LEO LLC Assessment System</p>
+                    <p>COPYRIGHT © 2026 BLACK LEO LLC. All Rights Reserved.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                <button onclick="takeScreenshot()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Screenshot ရိုက်မည်
+                </button>
+                <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all text-sm">
+                    အစကနေပြန်ဖြေမည်
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Copyright -->
+    <footer class="w-full bg-white/60 border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+        <p class="font-medium">ဤထုတ်ကုန်သည် <strong class="text-indigo-600">BLACK LEO LLC</strong> ၏ ထုတ်ကုန်ဖြစ်ပြီး COPYRIGHT ကိစ္စအားလုံးကို <strong class="text-indigo-600">BLACK LEO LLC</strong> ကသာ ပိုင်ဆိုင်ပါသည်။</p>
+    </footer>
+
+    <!-- Script Application Logic -->
+    <script>
+        const rawQuestions = [
+            // True / False
+            { type: 'true_false', question: 'ပိတောက်ရွှေဝါကဗျာကိုအမည်မသိစာဆိုကရေးသားခဲ့သည်', answer: 'မှား' },
+            { type: 'true_false', question: 'ပုဂံမြို့ဟောင်းနှင့်ကျွန်တော်ခရီးသွားဆောင်းပါးကိုစာရေးဆရာဇော်ဂျီက ရေးသားခဲ့သည်။', answer: 'မှန်' }, // အဖြေမှန်ကို "မှန်" ဟု ပြင်ဆင်ပြီး
+            { type: 'true_false', question: 'စိတ်နေမြင့်သူကဗျာသည်လေးချိုးကဗျာဖြစ်သည်', answer: 'မှား' },
+            { type: 'true_false', question: 'မောင်မလုပ်နကဗျာကိုအမည်မသိစာဆိုရေးခဲ့သည်', answer: 'မှန်' },
+            { type: 'true_false', question: 'ရွှေစည်းခုံစေတီတော်သည်အယဉ်အနုဖြင့်သပ္ပာယ်သည်', answer: 'မှား' },
+            { type: 'true_false', question: 'ဆင်းရဲဒုက္ခခံမှသာချမ်းသာသုခကိုရနိုင်သည်', answer: 'မှန်' },
+            { type: 'true_false', question: 'မြေစောင့်ပြိတ္တာကိုဘီလူးဟုခေါ်သည်။', answer: 'မှား' },
+            { type: 'true_false', question: 'လောကသဘာဝအလှကိုရှုမြင်တတ်ရန်လိုအပ်သည်', answer: 'မှန်' },
+            { type: 'true_false', question: 'မက္ခရာမင်းသားကြီးသည်ထီးနန်းမျိုးရိုးဖြစ်သည်', answer: 'မှန်' },
+            { type: 'true_false', question: 'ပြီးအောင်လုပ်ဆောင်းပါးကိုတက်တိုးရေးခဲ့သည်', answer: 'မှား' },
+
+            // Fill in the blanks
+            { type: 'fill_blank', question: 'အရပ်ရှစ်မျက်နှာ နှံ့စပ်အောင် ရောက်ဖူးသော သူကို ................... ဟုခေါ်သည်။', answer: 'ရှစ်စပ်ကလယ်သည့်လူ' },
+            { type: 'fill_blank', question: 'ရှမ်းပြည်တောင်ပိုင်းရှိ တောင်တန်းဒေသများတွင် ................... နေထိုင်ကြသည်။', answer: 'ဓနုလူမျိုးများ' },
+            { type: 'fill_blank', question: 'ပုဂံကောင်းကင်တွင် ................... တို့မြူးနေကြသည်။', answer: 'တိမ်တောင်တိမ်လိပ်' },
+            { type: 'fill_blank', question: 'ရွှေနှင့်နှိုင်းတူ ငွေနှိုင်းချင်းသည်။ ...................', answer: 'တောင်ငူနနွင်း' },
+            { type: 'fill_blank', question: 'လုံ့လဝီရိယသည် ................... ပင်ဖြစ်၏။', answer: 'ဒုက္ခခံခြင်း' },
+            { type: 'fill_blank', question: 'မိခင်သည် ................... ပြင်းစွာပင်ပန်း၏။', answer: 'မိမိနှလုံးကွဲအံ့သကဲ့သို့' },
+            { type: 'fill_blank', question: 'ခံစားသိတတ်၊ခံယူတတ်မှ ................... ရင်ဝယ်ငြိ၏။', answer: 'ကျိုးမြတ်ပီတိ' },
+            { type: 'fill_blank', question: 'ရှင်မဟာရဋ္ဌသာရဆုံးမစာကဗျာသည် ................... တွင်ကျော်ကြားခဲ့သည်။', answer: 'အင်းဝခေတ်' },
+            { type: 'fill_blank', question: 'ဦးတင်လှသည် ................... ဆောင်းပါးသုတစကားပြေကိုရေးခဲ့သည်။', answer: 'မြန်မာ့ရိုးရာလယ်လုပ်ငန်း' },
+            { type: 'fill_blank', question: 'ကွီးဘက်မြို့တွင် ................... မြစ်တံတားကြီးရှိလေသည်။', answer: 'စိန်လော့ရင်း' },
+            { type: 'fill_blank', question: 'ယောကျ်ားပင်ဖြစ်သော်လည်း ................... သည်ရှေ့မှန်းနောက်မှန်းမသိတတ်။', answer: 'အသိဉာဏ်မရှိသောသူ' },
+
+            // Multiple Choice
+            { 
+                type: 'mcq', 
+                question: 'တစ်စုံတစ်ရာကိုအမှန်ပဲဟု ယူဆလျှင်အမှားနှင့်လည်းတွေ့ရတတ်သည် (အဖြေမှန်ရွေးပါ)', 
+                options: ['ထာဝရ', 'အမြဲ', 'အစဉ်'], 
+                answer: 'အမြဲ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'လုံ့လဝီရိယ သည် မြန်မာလိုပြန်ဆိုလျှင် ................... ခြင်းပင် ဖြစ်သည်။', 
+                options: ['ကြိုးစား', 'အားထုတ်', 'ဒုက္ခခံ'], 
+                answer: 'ဒုက္ခခံ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'စိန်တောင်ဆိုသည်မှာ ကို လှစေသည်။', 
+                options: ['စေတီ', 'ပန်းတင်ခုံ', 'မုခ်ဦး'], 
+                answer: 'ပန်းတင်ခုံ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'လင်္ကာကဗျာသည် ပိုဒ်ရေများစွာပါသော ကဗျာရှည်အမျိုးအစားဖြစ်သည်။', 
+                options: ['လေးချိုး', 'အချိုးတွဲ', 'လေးလုံးစပ်'], 
+                answer: 'လေးလုံးစပ်' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'အလောင်းဘုရားသည် ၁၇၅၃ ခုနှစ်တွင် မြို့ကိုတည်ထောင်တော်မူသည်', 
+                options: ['လွန်ဆေး', 'ဒဂုံ', 'ရန်ကုန်'], 
+                answer: 'ရန်ကုန်' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'မြန်မာ့ရိုးရာလယ် လုပ်ငန်းစကားပြေသည် ................... စကားပြေဖြစ်သည်။', 
+                options: ['သုတ', 'ရသ', 'သုတရသ'], 
+                answer: 'သုတ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'မောင်မလုပ်နကဗျာကို စာဆိုက ရေးဖွဲ့ခဲ့သည်။', 
+                options: ['တောင်ရိုးဓနု', 'အမည်မသိ', 'ဦးကြော့'], 
+                answer: 'အမည်မသိ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'ရှင်မဟာရဋ္ဌသာရဆုံးမစာကဗျာသည် ................... ခေတ်တွင်ကျော်ကြားခဲ့သည်။', 
+                options: ['ကုန်းဘောင်', 'အင်းဝ', 'ပင်းယ'], 
+                answer: 'အင်းဝ' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'နွေလုပ်ငန်းတွင် ................... အလုပ်ကိုလုပ်ကိုင်ကြသည်။', 
+                options: ['စက်ခုတ်', 'ပျိုးနုတ်', 'ကောက်လှိုင်းတိုက်'], 
+                answer: 'ကောက်လှိုင်းတိုက်' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'စာဆိုသည် ................... နွေအကူးတွင်ဖူးပွင့်သော ပိတောက်ပန်းအကြောင်းရေးဖွဲ့ထားပါသည်။', 
+                options: ['နှစ်ကူးချိန်', 'နှစ်သစ်ကူးချိန်', 'နှစ်ဦးချိန်'], 
+                answer: 'နှစ်သစ်ကူးချိန်' 
+            },
+            { 
+                type: 'mcq', 
+                question: 'အလှတရားများကို ................... တတ်ရန်လိုအပ်သည်။', 
+                options: ['ကြည့်မြင်', 'ရှုမြင်', 'ရှာဖွေ'], 
+                answer: 'ရှုမြင်' 
+            }
+        ];
+
+        let quizQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = {};
+        let score = 0;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-q-count').innerText = rawQuestions.length;
+        });
+
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            quizQuestions = shuffleArray([...rawQuestions]);
+            userAnswers = {};
+            currentIndex = 0;
+            secondsElapsed = 0;
+
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('timer-box').classList.remove('hidden');
+            document.getElementById('timer-box').classList.add('flex');
+
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                let mins = Math.floor(secondsElapsed / 60);
+                let secs = secondsElapsed % 60;
+                document.getElementById('timer').innerText = 
+                    String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = quizQuestions[currentIndex];
+            document.getElementById('question-progress-label').innerText = `မေးခွန်း ${currentIndex + 1} / ${quizQuestions.length}`;
+            
+            let typeBadgeText = 'အဖြေမှန်ရွေး';
+            if(q.type === 'true_false') typeBadgeText = 'မှန် / မှား';
+            if(q.type === 'fill_blank') typeBadgeText = 'ကွက်လပ်ဖြည့်';
+            document.getElementById('question-type-badge').innerText = typeBadgeText;
+
+            document.getElementById('question-text').innerText = q.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            const fibContainer = document.getElementById('fib-container');
+            const fibInput = document.getElementById('fib-input');
+
+            optionsContainer.innerHTML = '';
+            fibContainer.classList.add('hidden');
+            optionsContainer.classList.add('hidden');
+
+            if (q.type === 'true_false') {
+                optionsContainer.classList.remove('hidden');
+                ['မှန်', 'မှား'].forEach(opt => {
+                    const isSelected = userAnswers[currentIndex] === opt;
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left px-5 py-3.5 rounded-xl border transition-all font-medium text-base flex items-center justify-between ${
+                        isSelected 
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50/50 hover:border-indigo-200'
+                    }`;
+                    btn.innerHTML = `<span>${opt}</span> <span class="w-5 h-5 rounded-full border flex items-center justify-center text-xs ${isSelected ? 'border-white bg-white/20' : 'border-slate-300'}">${isSelected ? '✓' : ''}</span>`;
+                    btn.onclick = () => selectOption(opt);
+                    optionsContainer.appendChild(btn);
+                });
+            } else if (q.type === 'mcq') {
+                optionsContainer.classList.remove('hidden');
+                let shuffledOpts = shuffleArray([...q.options]);
+                shuffledOpts.forEach(opt => {
+                    const isSelected = userAnswers[currentIndex] === opt;
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left px-5 py-3.5 rounded-xl border transition-all font-medium text-base flex items-center justify-between ${
+                        isSelected 
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50/50 hover:border-indigo-200'
+                    }`;
+                    btn.innerHTML = `<span>${opt}</span> <span class="w-5 h-5 rounded-full border flex items-center justify-center text-xs ${isSelected ? 'border-white bg-white/20' : 'border-slate-300'}">${isSelected ? '✓' : ''}</span>`;
+                    btn.onclick = () => selectOption(opt);
+                    optionsContainer.appendChild(btn);
+                });
+            } else if (q.type === 'fill_blank') {
+                fibContainer.classList.remove('hidden');
+                fibInput.value = userAnswers[currentIndex] || '';
+                fibInput.oninput = (e) => {
+                    userAnswers[currentIndex] = e.target.value.trim();
+                };
+            }
+
+            const progressPct = ((currentIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').innerText = currentIndex === quizQuestions.length - 1 ? 'စစ်ဆေးမည်' : 'ရှေ့သို့';
+        }
+
+        function selectOption(val) {
+            userAnswers[currentIndex] = val;
+            loadQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < quizQuestions.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('timer-box').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            score = 0;
+            quizQuestions.forEach((q, idx) => {
+                let userAns = userAnswers[idx] || '';
+                if (userAns.toLowerCase() === q.answer.toLowerCase()) {
+                    score++;
+                }
+            });
+
+            const total = quizQuestions.length;
+            const percentage = Math.round((score / total) * 100);
+
+            document.getElementById('score-val').innerText = score;
+            document.getElementById('total-val').innerText = total;
+            document.getElementById('score-percentage').innerText = `ရာခိုင်နှုန်း: ${percentage}%`;
+
+            let msg = 'ကြိုးစားအားထုတ်မှုအတွက် ဂုဏ်ယူပါတယ်!';
+            if (percentage >= 80) msg = 'အရမ်းထူးချွန်ပါတယ် ထိပ်တန်းအဆင့်ပါ။';
+            else if (percentage >= 50) msg = 'ကောင်းမွန်ပါသည်။ တိုးတက်အောင်ဆက်ကြိုးစားပါ။';
+            document.getElementById('performance-msg').innerText = msg;
+        }
+
+        function takeScreenshot() {
+            const captureElement = document.getElementById('capture-area');
+            html2canvas(captureElement, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'myanmar-quiz-result-black-leo.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function restartQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+```eof
+
+```
